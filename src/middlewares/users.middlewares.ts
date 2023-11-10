@@ -1,4 +1,3 @@
-import { error } from 'console'
 import { Request, Response, NextFunction } from 'express'
 import { ParamSchema, checkSchema } from 'express-validator'
 import { JsonWebTokenError } from 'jsonwebtoken'
