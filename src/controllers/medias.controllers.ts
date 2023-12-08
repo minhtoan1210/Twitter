@@ -40,7 +40,7 @@ export const serveImageController = async (req: Request, res: Response, next: Ne
 
 export const serveVideoController = async (req: Request, res: Response, next: NextFunction) => {
   const range = req.headers.range
- console.log("ASdsa", range)
+//  console.log("ASdsa", range)
  if(!range){
   return res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range header')
  }

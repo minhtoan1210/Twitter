@@ -67,7 +67,7 @@ const confirmPasswordSchera: ParamSchema = {
   },
   custom: {
     options: (value, { req }) => {
-      console.log('req', req.body.password != value)
+      // console.log('req', req.body.password != value)
       if (value != req.body.password) {
         throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD)
       }
@@ -91,7 +91,7 @@ const forgotPasswordToken: ParamSchema = {
           token: value,
           secretOrPublicKey: process.env.JWR_SECRET_FORGOT_PASSWORL_TOKEN as string
         })
-        console.log("decoded_forgot_password_token", decoded_forgot_password_token)
+        // console.log("decoded_forgot_password_token", decoded_forgot_password_token)
         const { user_id } = decoded_forgot_password_token
         const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
 
@@ -249,7 +249,7 @@ export const registerValidator = validate(
       trim: true,
       custom: {
         options: async (value) => {
-          console.log("value", value)
+          // console.log("value", value)
           const isCheckEmail = await usersService.checkEmailExit(value)
           if (isCheckEmail) {
             //     ({ message: "'Email trung nhau", status: 401 })
@@ -276,8 +276,8 @@ export const accessTokenValidator = validate(checkSchema({
 
         try {
           const decoded_authorization = await verifyToken({ token: access_token, secretOrPublicKey: process.env.JWR_SECRET_ACCESS_TOKEN as string })
-          console.log("decoded_authorization", decoded_authorization);
-          (req as Request).decoded_authorization = decoded_authorization
+          // console.log("decoded_authorization", decoded_authorization)
+          ;(req as Request).decoded_authorization = decoded_authorization
         }
         catch (error) {
           throw new ErrorWithStatus({
@@ -320,7 +320,7 @@ export const refreshTokenValidator = validate(checkSchema({
           }
 
           (req as Request).decoded_refresh_token = decoded_refresh_token
-          console.log("decoded_refresh_token", decoded_refresh_token)
+          // console.log("decoded_refresh_token", decoded_refresh_token)
         } catch (error) {
           if (error instanceof JsonWebTokenError) {
             throw new ErrorWithStatus({

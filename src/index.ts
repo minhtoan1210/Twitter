@@ -5,24 +5,35 @@ import { defaultErrorHandler } from './middlewares/error.middlewares'
 import mediasRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { config } from 'dotenv'
-import { isProduction } from './constants/config'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dis'
 import staticRouter from './routes/statics.routes'
-
+import tweetsRouter from './routes/tweets.routes'
+import bookmarksRouter from './routes/bookmarks.routes'
+import likesRouter from './routes/likes.routes'
+import cors from 'cors'
+import '~/utils/s3';
+import { createServer } from "http";
+import { Server } from "socket.io";
 config()
 const app = express()
+const httpServer = createServer(app);
 const port = 4000
-console.log(isProduction)
-databaseService.connect()
+// console.log(isProduction)
+databaseService.connect().then(() => {
+  databaseService.indexUsers()
+  databaseService.indexRefreshTokens()
+  // databaseService.indexFollowers()
+})
 initFolder()
 
-
-
+app.use(cors())
 app.use(express.json())
 app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
-
+app.use('/tweets', tweetsRouter)
 app.use('/static', staticRouter)
+app.use('/bookmarks', bookmarksRouter)
+app.use('/likes', likesRouter)
 
 //c1 doc hinh
 app.use('/medias', express.static(UPLOAD_IMAGE_DIR))
@@ -32,6 +43,37 @@ app.use('/medias', express.static(UPLOAD_IMAGE_DIR))
 
 app.use(defaultErrorHandler)
 
-app.listen(port, () => {
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000"
+  }
+});
+
+const users: {
+  [key: string]: {
+    socket_id: string
+  }
+} = {}
+
+io.on("connection", (socket) => {
+  console.log(`user ${socket.id} connected`)
+  const users_id = socket.handshake.auth._id
+  users[users_id] = {
+    socket_id: socket.id
+  }
+  console.log("users", users)
+
+  // socket.on('hello', (data) => {
+  //   console.log("data", data)
+  // })
+
+  socket.on('disconnect', () => {
+    console.log(`user ${socket.id} disconnect`)
+    delete users[users_id]
+    console.log("users", users)
+  })
+});
+
+httpServer.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })

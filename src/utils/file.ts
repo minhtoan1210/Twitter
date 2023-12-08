@@ -110,9 +110,6 @@ const form = formidable({
   maxTotalFileSize: 50*1024 * 1024 * 1,
   filter: function ({ name, originalFilename, mimetype }) {
     const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'))
-
-    console.log("asdsa", valid)
-
     if (!valid) {
       form.emit('error' as any, new Error('File type is not valid') as any)
     }

@@ -11,7 +11,7 @@ import usersService from '~/services/users.services'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response, next: NextFunction) => {
   const user = req.user as User
-  console.log("ASdsada", user)
+  // console.log("ASdsada", user)
   const user_id = user._id as ObjectId
   const result = await usersService.login({ user_id: user_id.toString(), verify: user.verify })
   return res.json({
@@ -33,7 +33,8 @@ export const registerController = async (
   next: NextFunction
 ) => {
   const result = await usersService.register(req.body)
-  return res.send({
+  console.log("ASdsa", result)
+  return res.json({
     message: USERS_MESSAGES.REGISTER_SUCCESS,
     result
   })
@@ -47,8 +48,8 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
 
 export const refreshTokenController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) => {
   const { refresh_token } = req.body
-  const { user_id, verify } = req.decoded_refresh_token as TokenPayload
-  const result = await usersService.refreshToken({ user_id, verify, refresh_token })
+  const { user_id, verify, exp } = req.decoded_refresh_token as TokenPayload
+  const result = await usersService.refreshToken({ user_id, verify, refresh_token, exp })
   return res.json({
     message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
     result
@@ -95,14 +96,14 @@ export const resendlVerifyEmailController = async (req: Request, res: Response, 
     })
   }
 
-  const result = await usersService.resendVerifyEmail(user_id)
+  const result = await usersService.resendVerifyEmail(user_id, user.email)
 
   return res.json(result)
 }
 
 export const forgotPasswordController = async (req: Request<ParamsDictionary, any, ForgotPasswordReqBody>, res: Response, next: NextFunction) => {
-  const { _id, verify } = req.user as User
-  const result = await usersService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify })
+  const { _id, verify, email } = req.user as User
+  const result = await usersService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify, email })
   return res.json(result)
 }
 
