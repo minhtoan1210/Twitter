@@ -11,7 +11,7 @@ import tweetsRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
 import cors from 'cors'
-import '~/utils/s3';
+// import '~/utils/s3';
 import { createServer } from "http";
 import { Server } from "socket.io";
 config()
@@ -61,7 +61,16 @@ io.on("connection", (socket) => {
   users[users_id] = {
     socket_id: socket.id
   }
+
+
   console.log("users", users)
+  socket.on('private message', (data) => {
+    const receiver_socket_id = users[data.to].socket_id
+    socket.to(receiver_socket_id).emit('private message', {
+      const: data.content,
+      from: users_id
+    })
+  })
 
   // socket.on('hello', (data) => {
   //   console.log("data", data)
@@ -71,6 +80,7 @@ io.on("connection", (socket) => {
     console.log(`user ${socket.id} disconnect`)
     delete users[users_id]
     console.log("users", users)
+
   })
 });
 
